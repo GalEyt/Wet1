@@ -28,16 +28,14 @@ private:
 	void rollLR();
 	void rollRR();
 	void rollRL();
+	bool isLeaf() {
+		return (!right && !left);
+	}
 
 public:
 	AVLTree() : right(nullptr), left(nullptr), parent(nullptr), height(-1), balance(0), m_data(nullptr) {}
 	AVLTree(AVLTree<T, ID>* parent, T data, ID id) : right(nullptr), left(nullptr), parent(parent), height(0), balance(0), m_data(data), m_id(id) {}
-
-	~AVLTree() {
-		//loop and delete all
-	}
-
-
+	~AVLTree() = default;
 
 	void insert(T data, ID id) {
 		if (!m_data) {
@@ -261,5 +259,103 @@ void  AVLTree<T, ID> ::rollRR() {
 
 }
 
+
+template <class T, class ID>
+void  AVLTree<T, ID> ::rollLR() {
+	AVLTree<T, ID>* A = left;
+	AVLTree<T, ID>* B = A->right;
+	AVLTree<T, ID>* BL = B->left;
+	AVLTree<T, ID>* BR = B->right;
+	B->parent = parent;
+	C->parent = B;
+	A->parent = B;
+	BL->parent = A;
+	BR->parent = C;
+	if (B->parent->m_id < B->m_id) {
+		B->parent->right = B;
+	}
+	else {
+		B->parent->left = B;
+	}
+	B->left = A;
+	B->right = C;
+	C->left = BR;
+	A->right = BL;
+	A->updateHeightBalance();
+	C->updateHeightBalance();
+	B->updateHeightBalance();
+}
+
+
+template <class T, class ID>
+void  AVLTree<T, ID> ::rollRL() {
+	AVLTree<T, ID>* A = right;
+	AVLTree<T, ID>* B = A->left;
+	AVLTree<T, ID>* BL = B->left;
+	AVLTree<T, ID>* BR = B->right;
+	B->parent = parent;
+	C->parent = B;
+	A->parent = B;
+	BL->parent = A;
+	BR->parent = C;
+	if (B->parent->m_id < B->m_id) {
+		B->parent->right = B;
+	}
+	else {
+		B->parent->left = B;
+	}
+	B->left = C;
+	B->right = A;
+	C->right = BL;
+	A->left = BR;
+	A->updateHeightBalance();
+	C->updateHeightBalance();
+	B->updateHeightBalance();
+}
+
+
+template <class T, class ID>
+void  AVLTree<T, ID> ::removeRoll() {
+	updateHeightBalance();
+	if (balance == 2) {
+		if (left->balance == 1) {
+			rollLL();
+		}
+		else {
+			rollLR();
+		}
+	}
+	else if (balance == -2) {
+		if (right->balance == 1) {
+			rollRL();
+		}
+		else {
+			rollRR();
+		}
+	}
+	if (parent) {
+		parent->removeRoll();
+	}
+}
+
+template <class T, class ID>
+void deleteTree(AVLTree<T, ID>* root) {
+	if (!root) {
+		throw EmptyTree();
+	}
+	if (root->left) {
+		if (!root->left->isLeaf()) {
+			deleteTree(root->left);
+		}
+		delete root->left;
+	}
+	if (root->right) {
+		if (!root->right->isLeaf()) {
+			deleteTree(root->right);
+		}
+		delete root->right;
+	}
+	delete root;
+}
 
 #endif // AVL_TREE
