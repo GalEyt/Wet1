@@ -1,4 +1,8 @@
 #include <algorithm>
+#include <iostream>
+using namespace std;
+#define COUNT 10
+
 #ifndef AVL_TREE
 #define AVL_TREE
 
@@ -20,7 +24,7 @@ private:
 
 	void swap(AVLTree<T, ID>* first, AVLTree<T, ID>* second);
 	AVLTree<T, ID>* find(ID id);
-	AVLTree<T, ID>* getMostLeft(AVLTree<T, ID>* node);
+	AVLTree<T, ID>* getMostLeft();
 	void updateHeightBalance();
 	void removeRoll();
 	void insertRoll();
@@ -33,25 +37,91 @@ private:
 	}
 
 public:
-	AVLTree() : right(nullptr), left(nullptr), parent(nullptr), height(-1), balance(0), m_data(nullptr) {}
+	AVLTree() : right(nullptr), left(nullptr), parent(nullptr), height(-1), balance(0), m_data(), m_id() {}
 	AVLTree(AVLTree<T, ID>* parent, T data, ID id) : right(nullptr), left(nullptr), parent(parent), height(0), balance(0), m_data(data), m_id(id) {}
 	~AVLTree() = default;
+	void deleteTree(AVLTree<T, ID>* root);
+	AVLTree<T, ID>* getRoot() {
+		if (height == -1) {
+			throw EmptyTree();
+		}
+		if (!parent) {
+			return this;
+		}
+		return parent->getRoot();
+	}
+
+	// Function to print binary tree in 2D
+// It does reverse inorder traversal
+	void print2DUtil(AVLTree<int, int>* root, int space)
+	{
+		// Base case
+		if (root == NULL)
+			return;
+
+		// Increase distance between levels
+		space += COUNT;
+
+		// Process right child first
+		print2DUtil(root->right, space);
+
+		// Print current node after space
+		// count
+		cout << endl;
+		for (int i = COUNT; i < space; i++)
+			cout << " ";
+		cout << root->m_id << "\n";
+
+		// Process left child
+		print2DUtil(root->left, space);
+	}
+
+	// Wrapper over print2DUtil()
+	void print2D(AVLTree<int, int>* root)
+	{
+		// Pass initial space count as 0
+		print2DUtil(root, 0);
+	}
+
+	void printTreeInOrder() {
+		if (left) {
+			left->printTreeInOrder();
+		}
+		std::cout << "id:" << m_id << "balance: " << balance << "\n";
+		if (right)
+		{
+			right->printTreeInOrder();
+		}
+	}
+	void printTreePreOrder() {
+		std::cout << "id:" << m_id << "balance: " << balance << "\n";
+
+		if (left) {
+			left->printTreePreOrder();
+		}
+		if (right)
+		{
+			right->printTreePreOrder();
+		}
+	}
 
 	void insert(T data, ID id) {
-		if (!m_data) {
+		if (height == -1) {
 			m_data = data;
+			m_id = id;
 			height++;
+			return;
 		}
-		if (m_data < data) {
+		if (m_id < id) {
 			if (!right) {
 				right = new AVLTree<T, ID>(this, data, id);
 				right->insertRoll();
 			}
 			else {
-				right->insert(data);
+				right->insert(data, id);
 			}
 		}
-		else if (m_data == data) {
+		else if (m_id == id) {
 			throw Exist();
 		}
 		else {
@@ -60,7 +130,7 @@ public:
 				left->insertRoll();
 			}
 			else {
-				left->insert(data);
+				left->insert(data, id);
 			}
 		}
 	}
@@ -69,8 +139,8 @@ public:
 
 	void remove(ID id) {
 		AVLTree<T, ID>* toDelete = find(id);
-		if (toDelte->right && toDelte->left) {
-			AVLTree<T, ID>* toSwich = getMostLeft(toDelete->getMostLeft());
+		if (toDelete->right && toDelete->left) {
+			AVLTree<T, ID>* toSwich = toDelete->right->getMostLeft();
 			swap(toDelete, toSwich);
 		}
 		else if (toDelete->left) {
@@ -80,7 +150,7 @@ public:
 			swap(toDelete, toDelete->right);
 		}
 		else if (!toDelete->parent) {
-			~AVLTree();
+			deleteTree(toDelete);
 			return;
 		}
 		else {
@@ -101,11 +171,11 @@ public:
 
 template <class T, class ID>
 AVLTree<T, ID>* AVLTree<T, ID>::find(ID id) {
-	if (!m_data) {
+	if (height == -1) {
 		throw EmptyTree();
 	}
 	if (m_id == id) {
-		return this
+		return this;
 	}
 	if (m_id < id) {
 		if (!right) {
@@ -158,15 +228,6 @@ void AVLTree<T, ID>::swap(AVLTree<T, ID>* first, AVLTree<T, ID>* second) {
 
 
 template <class T, class ID>
-AVLTree<T, ID>* AVLTree<T, ID>::getMostLeft(AVLTree<T, ID>* node) {
-	if (!node->left) {
-		return node;
-	}
-	return getMostLeft(node->left);
-}
-
-
-template <class T, class ID>
 void AVLTree<T, ID>::updateHeightBalance() {
 	if (left && right) {
 		height = std::max(left->height, right->height) + 1;
@@ -178,7 +239,7 @@ void AVLTree<T, ID>::updateHeightBalance() {
 	}
 	else if (right) {
 		height = right->height + 1;
-		balance = height;
+		balance = height * (-1);
 	}
 	else {
 		height = 0;
@@ -205,8 +266,8 @@ void AVLTree<T, ID>::insertRoll() {
 				rollLR();
 			}
 		}
-		else {
-			if (left->balance == 1) {
+		else if (balance == -2) {
+			if (right->balance == 1) {
 				rollRL();
 			}
 			else
@@ -232,7 +293,9 @@ void  AVLTree<T, ID> ::rollLL() {
 		}
 	}
 	left = left->right; //now B_R points at A_R and A is B parent
-	left->parent = this;
+	if (left) {
+		left->parent = this;
+	}
 	parent->right = this;
 	updateHeightBalance();
 	parent->updateHeightBalance();
@@ -252,7 +315,9 @@ void  AVLTree<T, ID> ::rollRR() {
 		}
 	}
 	right = right->left;
-	right->parent = this;
+	if (right) {
+		right->parent = this;
+	}
 	parent->left = this;
 	updateHeightBalance();
 	parent->updateHeightBalance();
@@ -267,22 +332,28 @@ void  AVLTree<T, ID> ::rollLR() {
 	AVLTree<T, ID>* BL = B->left;
 	AVLTree<T, ID>* BR = B->right;
 	B->parent = parent;
-	C->parent = B;
+	parent = B;
 	A->parent = B;
-	BL->parent = A;
-	BR->parent = C;
-	if (B->parent->m_id < B->m_id) {
-		B->parent->right = B;
+	if (BL) {
+		BL->parent = A;
 	}
-	else {
-		B->parent->left = B;
+	if (BR) {
+		BR->parent = this;
+	}
+	if (B->parent) {
+		if (B->parent->m_id < B->m_id) {
+			B->parent->right = B;
+		}
+		else {
+			B->parent->left = B;
+		}
 	}
 	B->left = A;
-	B->right = C;
-	C->left = BR;
+	B->right = this;
+	this->left = BR;
 	A->right = BL;
 	A->updateHeightBalance();
-	C->updateHeightBalance();
+	updateHeightBalance();
 	B->updateHeightBalance();
 }
 
@@ -294,22 +365,28 @@ void  AVLTree<T, ID> ::rollRL() {
 	AVLTree<T, ID>* BL = B->left;
 	AVLTree<T, ID>* BR = B->right;
 	B->parent = parent;
-	C->parent = B;
+	parent = B;
 	A->parent = B;
-	BL->parent = A;
-	BR->parent = C;
-	if (B->parent->m_id < B->m_id) {
-		B->parent->right = B;
+	if (BL) {
+		BL->parent = A;
 	}
-	else {
-		B->parent->left = B;
+	if (BR) {
+		BR->parent = this;
 	}
-	B->left = C;
+	if (B->parent) {
+		if (B->parent->m_id < B->m_id) {
+			B->parent->right = B;
+		}
+		else {
+			B->parent->left = B;
+		}
+	}
+	B->left = this;
 	B->right = A;
-	C->right = BL;
+	right = BL;
 	A->left = BR;
 	A->updateHeightBalance();
-	C->updateHeightBalance();
+	updateHeightBalance();
 	B->updateHeightBalance();
 }
 
@@ -339,7 +416,7 @@ void  AVLTree<T, ID> ::removeRoll() {
 }
 
 template <class T, class ID>
-void deleteTree(AVLTree<T, ID>* root) {
+void AVLTree<T, ID>::deleteTree(AVLTree<T, ID>* root) {
 	if (!root) {
 		throw EmptyTree();
 	}
@@ -356,6 +433,15 @@ void deleteTree(AVLTree<T, ID>* root) {
 		delete root->right;
 	}
 	delete root;
+}
+
+
+template <class T, class ID>
+AVLTree<T, ID>* AVLTree<T, ID> ::getMostLeft() {
+	if (!left) {
+		return this;
+	}
+	return left->getMostLeft();
 }
 
 #endif // AVL_TREE
