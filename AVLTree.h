@@ -20,17 +20,17 @@ template <class T, class ID>
 class AVLTree
 {
 private:
-	AVLTree<T, ID> *right;
-	AVLTree<T, ID> *left;
-	AVLTree<T, ID> *parent;
+	AVLTree<T, ID>* right;
+	AVLTree<T, ID>* left;
+	AVLTree<T, ID>* parent;
 	int height;
 	int balance;
 	T m_data;
 	ID m_id;
 
-	void swap(AVLTree<T, ID> *other);
-	AVLTree<T, ID> *find(ID id);
-	AVLTree<T, ID> *getMostLeft();
+	void swap(AVLTree<T, ID>* other);
+	AVLTree<T, ID>* find(ID id);
+	AVLTree<T, ID>* getMostLeft();
 	void updateHeightBalance();
 	void removeRoll();
 	void insertRoll();
@@ -80,63 +80,111 @@ private:
 			}
 		}
 	}
-	void removeHelper(ID id)
+
+	bool isLeftSon() {
+		//assert parent
+		if (parent->left == this) {
+			return true;
+		}
+		return false;
+	}
+
+	AVLTree<T, ID>* removeLeaf() {
+		if (!parent) {
+			deleteTree(this);
+			return nullptr;
+		}
+		else {
+			if (isLeftSon()) {
+				parent->left = nullptr;
+			}
+			else {
+				parent->right = nullptr;
+			}
+		}
+		AVLTree<T, ID>* tmpParent = parent;
+		delete this;
+		return tmpParent;
+	}
+
+	AVLTree<T, ID>* removeOnlySon() {
+		AVLTree<T, ID>* tmp;
+		if (!parent) {
+			if (right) {
+				right->parent = nullptr;
+				tmp = right;
+			}
+			else {
+				left->parent = nullptr;
+				tmp = left;
+			}
+		}
+		else {
+			if (isLeftSon()) {
+				if (right) {
+					parent->left = right;
+					right->parent = parent;
+				}
+				else {
+					parent->left = left;
+					left->parent = parent;
+				}
+				tmp = parent;
+			}
+			else {
+				if (right) {
+					parent->right = right;
+					right->parent = parent;
+				}
+				else {
+					parent->right = left;
+					left->parent = parent;
+				}
+				tmp = parent;
+			}
+		}
+		delete this;
+		return tmp;
+	}
+
+	AVLTree<T, ID>* removeTwoSons() {
+		AVLTree<T, ID>* toSwitch = right->getMostLeft();
+		swap(toSwitch);
+		if (toSwitch->isLeaf()) {
+			return toSwitch->removeLeaf();
+		}
+		return toSwitch->removeOnlySon();
+	}
+
+	AVLTree<T, ID>* removeHelper(ID id)
 	{
-		AVLTree<T, ID> *toDelete = find(id);
-		if (toDelete->right && toDelete->left)
-		{
-			AVLTree<T, ID> *toSwitch = toDelete->right->getMostLeft();
-			toDelete->swap(toSwitch);
-			toDelete = toSwitch;
-		}
-		else if (toDelete->left)
-		{
-			toDelete->swap(toDelete->left);
-			toDelete = toDelete->left;
-		}
-		else if (toDelete->right)
-		{
-			toDelete->swap(toDelete->right);
-			toDelete = toDelete->right;
-		}
-		else if (!toDelete->parent)
-		{
-			deleteTree(toDelete);
-			return;
-		}
-
-		if (!toDelete->right && !toDelete->left && toDelete->parent)
-		{
-			if (toDelete->m_id < toDelete->parent->m_id)
-			{
-				toDelete->parent->left = nullptr;
-			}
-			else
-			{
-				toDelete->parent->right = nullptr;
+		AVLTree<T, ID>* toRoll;
+		AVLTree<T, ID>* toDelete = find(id);
+		if (toDelete->isLeaf()) {
+			toRoll = toDelete->removeLeaf();
+			if (!toRoll) {
+				return new AVLTree<T, ID>;
 			}
 		}
-		else if(toDelete->right && toDelete->parent){
-
+		else if (toDelete->right && toDelete->left) {
+			toRoll = toDelete->removeTwoSons();
 		}
-
-		AVLTree<T, ID> *parent = toDelete->parent;
-		delete toDelete;
-		parent->removeRoll();
+		else {
+			toRoll = toDelete->removeOnlySon();
+		}
+		toRoll->removeRoll();
+		return toRoll;
 	}
 
 public:
 	AVLTree() : right(nullptr), left(nullptr), parent(nullptr), height(-1), balance(0), m_data(), m_id() {}
-	AVLTree(AVLTree<T, ID> *parent, T data, ID id) : right(nullptr), left(nullptr), parent(parent), height(0), balance(0), m_data(data), m_id(id) {}
+	AVLTree(AVLTree<T, ID>* parent, T data, ID id) : right(nullptr), left(nullptr), parent(parent), height(0), balance(0), m_data(data), m_id(id) {}
 	~AVLTree() = default;
-	void deleteTree(AVLTree<T, ID> *root);
-	AVLTree<T, ID> *getRoot()
+	void deleteTree(AVLTree<T, ID>* root);
+	AVLTree<T, ID>* getRoot()
 	{
-		if (height == -1)
-		{
-			throw EmptyTree();
-		}
-		if (!parent)
+
+		if (!parent || height == -1)
 		{
 			return this;
 		}
@@ -145,7 +193,7 @@ public:
 
 	// Function to print binary tree in 2D
 	// It does reverse inorder traversal
-	void print2DUtil(AVLTree<int, int> *root, int space)
+	void print2DUtil(AVLTree<int, int>* root, int space)
 	{
 		// Base case
 		if (root == NULL)
@@ -169,7 +217,7 @@ public:
 	}
 
 	// Wrapper over print2DUtil()
-	void print2D(AVLTree<int, int> *root)
+	void print2D(AVLTree<int, int>* root)
 	{
 		// Pass initial space count as 0
 		print2DUtil(root, 0);
@@ -201,21 +249,21 @@ public:
 		}
 	}
 
-	AVLTree<T, ID> *insert(T data, ID id)
+	AVLTree<T, ID>* insert(T data, ID id)
 	{
 		insertHelper(data, id);
 		return getRoot();
 	}
 
-	AVLTree<T, ID> *remove(ID id)
+	AVLTree<T, ID>* remove(ID id)
 	{
-		removeHelper(id);
-		return getRoot();
+		AVLTree<T, ID>* tmp = removeHelper(id);
+		return tmp->getRoot();
 	}
 };
 
 template <class T, class ID>
-AVLTree<T, ID> *AVLTree<T, ID>::find(ID id)
+AVLTree<T, ID>* AVLTree<T, ID>::find(ID id)
 {
 	if (height == -1)
 	{
@@ -241,20 +289,14 @@ AVLTree<T, ID> *AVLTree<T, ID>::find(ID id)
 }
 
 template <class T, class ID>
-void AVLTree<T, ID>::swap(AVLTree<T, ID> *other)
+void AVLTree<T, ID>::swap(AVLTree<T, ID>* other)
 {
 	T tmpData = m_data;
 	ID tmpID = m_id;
-	int tmpH = height;
-	int tmpBal = balance;
 	m_data = other->m_data;
 	m_id = other->m_id;
-	height = other->height;
-	balance = other->balance;
 	other->m_data = tmpData;
 	other->m_id = tmpID;
-	other->balance = tmpBal;
-	other->height = tmpH;
 }
 
 template <class T, class ID>
@@ -375,10 +417,10 @@ void AVLTree<T, ID>::rollRR()
 template <class T, class ID>
 void AVLTree<T, ID>::rollLR()
 {
-	AVLTree<T, ID> *A = left;
-	AVLTree<T, ID> *B = A->right;
-	AVLTree<T, ID> *BL = B->left;
-	AVLTree<T, ID> *BR = B->right;
+	AVLTree<T, ID>* A = left;
+	AVLTree<T, ID>* B = A->right;
+	AVLTree<T, ID>* BL = B->left;
+	AVLTree<T, ID>* BR = B->right;
 	B->parent = parent;
 	parent = B;
 	A->parent = B;
@@ -413,10 +455,10 @@ void AVLTree<T, ID>::rollLR()
 template <class T, class ID>
 void AVLTree<T, ID>::rollRL()
 {
-	AVLTree<T, ID> *A = right;
-	AVLTree<T, ID> *B = A->left;
-	AVLTree<T, ID> *BL = B->left;
-	AVLTree<T, ID> *BR = B->right;
+	AVLTree<T, ID>* A = right;
+	AVLTree<T, ID>* B = A->left;
+	AVLTree<T, ID>* BL = B->left;
+	AVLTree<T, ID>* BR = B->right;
 	B->parent = parent;
 	parent = B;
 	A->parent = B;
@@ -481,7 +523,7 @@ void AVLTree<T, ID>::removeRoll()
 }
 
 template <class T, class ID>
-void AVLTree<T, ID>::deleteTree(AVLTree<T, ID> *root)
+void AVLTree<T, ID>::deleteTree(AVLTree<T, ID>* root)
 {
 	if (!root)
 	{
@@ -507,7 +549,7 @@ void AVLTree<T, ID>::deleteTree(AVLTree<T, ID> *root)
 }
 
 template <class T, class ID>
-AVLTree<T, ID> *AVLTree<T, ID>::getMostLeft()
+AVLTree<T, ID>* AVLTree<T, ID>::getMostLeft()
 {
 	if (!left)
 	{
