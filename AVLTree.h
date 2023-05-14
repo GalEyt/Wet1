@@ -29,11 +29,13 @@ private:
 	ID m_id;
 
 	void swap(AVLTree<T, ID> *other);
+	void swapFatherRightSon();
 	AVLTree<T, ID> *find(ID id);
 	AVLTree<T, ID> *getMostLeft();
 	void updateHeightBalance();
 	void removeRoll();
 	void insertRoll();
+	void updateParent(AVLTree<T, ID> *newParent);
 	void rollLL();
 	void rollLR();
 	void rollRR();
@@ -42,7 +44,6 @@ private:
 	{
 		return (!right && !left);
 	}
-	
 
 	bool isLeftSon()
 	{
@@ -132,11 +133,11 @@ private:
 	{
 		AVLTree<T, ID> *toSwitch = right->getMostLeft();
 		swap(toSwitch);
-		if (toSwitch->isLeaf())
+		if (isLeaf())
 		{
-			return toSwitch->removeLeaf();
+			return removeLeaf();
 		}
-		return toSwitch->removeOnlySon();
+		return removeOnlySon();
 	}
 
 	AVLTree<T, ID> *removeHelper(ID id)
@@ -240,7 +241,12 @@ public:
 		}
 	}
 
-	void insert(T data, ID id)
+	AVLTree<T, ID> * insert(T data, ID id){
+		insertHelper(data, id);
+		return getRoot();
+	}
+
+	void insertHelper(T data, ID id)
 	{
 		if (height == -1)
 		{
@@ -313,14 +319,51 @@ AVLTree<T, ID> *AVLTree<T, ID>::find(ID id)
 }
 
 template <class T, class ID>
+void AVLTree<T, ID>::swapFatherRightSon()
+{
+	AVLTree<T, ID> *son = right;
+	AVLTree<T, ID> *sonRight = son->right;
+	AVLTree<T, ID> *tmpLeft = left;
+	AVLTree<T, ID> *tmpParent = parent;
+	son->updateParent(tmpParent);
+	parent = son;
+	son->right = this;
+	son->left = tmpLeft;
+	tmpLeft->updateParent(son);
+	left = nullptr;
+	right = sonRight;
+	if (sonRight)
+	{
+		sonRight->updateParent(this);
+	}
+	updateHeightBalance();
+	son->updateHeightBalance();
+}
+
+template <class T, class ID>
 void AVLTree<T, ID>::swap(AVLTree<T, ID> *other)
 {
-	T tmpData = m_data;
-	ID tmpID = m_id;
-	m_data = other->m_data;
-	m_id = other->m_id;
-	other->m_data = tmpData;
-	other->m_id = tmpID;
+	if (right == other)
+	{
+		swapFatherRightSon();
+		return;
+	}
+	AVLTree<T, ID> *tmpLeftA = left;
+	AVLTree<T, ID> *tmpRightA = right;
+	AVLTree<T, ID> *tmpParentA = parent;
+	AVLTree<T, ID> *tmpRightB = other->right;
+	AVLTree<T, ID> *tmpParentB = other->parent;
+	left = other->left;//should be null
+	right = tmpRightB;
+	if(tmpRightB){
+		tmpRightB->updateParent(this);
+	}
+	updateParent(tmpParentB);
+	tmpLeftA->updateParent(other);
+	tmpRightA->updateParent(other);
+	other->updateParent(tmpParentA);
+	updateHeightBalance();
+	other->updateHeightBalance();
 }
 
 template <class T, class ID>
@@ -389,58 +432,37 @@ void AVLTree<T, ID>::insertRoll()
 template <class T, class ID>
 void AVLTree<T, ID>::rollLL()
 {
-	T tmpData = m_data;
-	ID tmpID = m_id;
-	AVLTree<T, ID> *oldA = left;
-	AVLTree<T, ID> *BR = right;
-	AVLTree<T, ID> *AR = oldA->right;
-	AVLTree<T, ID> *AL = oldA->left;
-	m_data = oldA->m_data;
-	m_id = oldA->m_id;
-	left = AL;
-	if (AL)
-	{
-		AL->parent = this;
+	AVLTree<T, ID> *A = left;
+	AVLTree<T, ID> *parentB  = parent;
+	AVLTree<T, ID> *AR = A->right;
+	A->updateParent(parentB);
+	updateParent(A);
+	if(AR){
+		AR->updateParent(this);
 	}
-	right = oldA;
-	oldA->m_data = tmpData;
-	oldA->m_id = tmpID;
-	oldA->right = BR;
-	if (BR)
-	{
-		BR->parent = oldA;
+	else{
+		left = nullptr;
 	}
-	oldA->left = AR;
-	oldA->updateHeightBalance();
 	updateHeightBalance();
+	A->updateHeightBalance();
 }
 
 template <class T, class ID>
 void AVLTree<T, ID>::rollRR()
 {
-	T tmpData = m_data;
-	ID tmpID = m_id;
-	AVLTree<T, ID> *oldA = right;
-	AVLTree<T, ID> *BL = left;
-	AVLTree<T, ID> *AR = oldA->right;
-	AVLTree<T, ID> *AL = oldA->left;
-	m_data = oldA->m_data;
-	m_id = oldA->m_id;
-	right = AR;
-	if(AR){
-		AR->parent = this;
+	AVLTree<T, ID> *A = right;
+	AVLTree<T, ID> *parentB  = parent;
+	AVLTree<T, ID> *AL = A->left;
+	A->updateParent(parentB);
+	updateParent(A);
+	if(AL){
+		AL->updateParent(this);
 	}
-	left = oldA;
-	oldA->m_data = tmpData;
-	oldA->m_id = tmpID;
-	oldA->left = BL;
-	if (BL)
-	{
-		BL->parent = oldA;
+	else{
+		right = nullptr;
 	}
-	oldA->right = AL;
-	oldA->updateHeightBalance();
 	updateHeightBalance();
+	A->updateHeightBalance();
 }
 
 template <class T, class ID>
@@ -523,6 +545,24 @@ AVLTree<T, ID> *AVLTree<T, ID>::getMostLeft()
 		return this;
 	}
 	return left->getMostLeft();
+}
+
+template <class T, class ID>
+void AVLTree<T, ID>::updateParent(AVLTree<T, ID> *newParent)
+{
+	parent = newParent;
+	if (!newParent)
+	{
+		return;
+	}
+	if (m_id < newParent->m_id)
+	{
+		newParent->left = this;
+	}
+	else
+	{
+		newParent->right = this;
+	}
 }
 
 #endif // AVL_TREE

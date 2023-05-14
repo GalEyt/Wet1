@@ -15,12 +15,12 @@ void unitTest4()
     std::uniform_int_distribution<int> uniform_dist(1, 1000);
     int tmp = uniform_dist(e1);
     int order[100];
-    for (int i = 0; i < 500; i++)
+    for (int i = 0; i < 200; i++)
     {
         order[i] = uniform_dist(e1);
         try
         {
-            root->insert(1, order[i]);
+            root = root->insert(1, order[i]);
         }
         catch (Exist)
         {
@@ -68,6 +68,43 @@ void unitTest5()
         root->printTreeInOrder();
     }
     //root->printTreeInOrder();
+}
+
+void unitTest6(){
+    AVLTree<int, int> *root = new AVLTree<int, int>;
+    root->insert(1, 8);
+    root->insert(1, 11);
+    root->insert(1, 5);
+    root->insert(1, 12);
+    root->insert(1, 10);
+    root->print2D(root);
+    root = root->remove(11);
+    std::cout << "\n---------- \n";
+    root->print2D(root);
+}
+
+void unitTest7(){
+    AVLTree<int, int> *root = new AVLTree<int, int>;
+    root->insert(1, 10);
+    root->insert(1, 5);
+    root->insert(1, 15);
+    root->insert(1, 4);
+    root->insert(1, 6);
+    root->insert(1, 14);
+    root->insert(1, 16);
+    root->insert(1, 13);
+    root->print2D(root);
+    root = root->remove(10);
+    std::cout << "\n---------- \n";
+    root->print2D(root);
+}
+
+void unitTest8(){
+    AVLTree<int, int> *root = new AVLTree<int, int>;
+    root = root->insert(1, 1);
+    root = root->insert(1, 2);
+    root = root->insert(1, 3);
+    root->print2D(root);
 }
 
 int main()
