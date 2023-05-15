@@ -6,6 +6,7 @@
 #include <random>
 #include <string>
 #include <iostream>
+#include "wet1util.h"
 
 void unitTest4()
 {
@@ -109,5 +110,5 @@ void unitTest8(){
 
 int main()
 {
-    unitTest4();
+    std::cout << (sizeof(Genre) / sizeof(int));
 }
