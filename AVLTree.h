@@ -1,11 +1,12 @@
+
+
+
+#ifndef AVL_TREE
+#define AVL_TREE
 #include <algorithm>
 #include <iostream>
 using namespace std;
 #define COUNT 10
-
-#ifndef AVL_TREE
-#define AVL_TREE
-
 class Exist
 {
 };
@@ -30,7 +31,6 @@ private:
 
 	void swap(AVLTree<T, ID>* other);
 	void swapFatherRightSon();
-	AVLTree<T, ID>* find(ID id);
 	AVLTree<T, ID>* getMostLeft();
 	void updateHeightBalance();
 	void removeRoll();
@@ -169,6 +169,7 @@ public:
 	AVLTree(AVLTree<T, ID>* parent, T data, ID id) : right(nullptr), left(nullptr), parent(parent), height(0), balance(0), m_data(data), m_id(id) {}
 	~AVLTree() = default;
 	void deleteTree(AVLTree<T, ID>* root);
+	AVLTree<T, ID>* find(ID id);
 	AVLTree<T, ID>* getRoot()
 	{
 

@@ -13,3 +13,6 @@
 /CppProperties.json
 /.vs/slnx.sqlite-journal
 maina1.cpp
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json

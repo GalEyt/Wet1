@@ -5,13 +5,14 @@ class Movie
 {
     int movieID;
     Genre genre;
-    int views;
-    int sumOfReviews;
-    int numOfReviews;
+    int views = 0;
+    int sumOfReviews = 0;
+    int numOfReviews = 0;
     bool vip;
 
 public:
-    Movie(Genre gnr, bool vip) : genre(gnr), vip(vip) {}
+    Movie() : movieID(-1), genre((Genre)0), views(0), vip(false) {}
+    Movie(int id, Genre gnr, int views, bool vip) : movieID(id), genre(gnr), views(views), vip(vip) {}
     Genre getGenre() const { return genre; }
     int getViews() const { return views; }
     bool isVIP() const { return vip; }
@@ -34,7 +35,7 @@ public:
         sumOfReviews += grade;
     }
 };
-bool operator<(const Movie &movie1, const Movie &movie2)
+inline bool operator<(const Movie &movie1, const Movie &movie2)
 {
     if (movie1.getAverageGrade() < movie2.getAverageGrade())
     {
@@ -54,4 +55,9 @@ bool operator<(const Movie &movie1, const Movie &movie2)
     }
     return movie1.getID() < movie2.getID();
 }
+
+inline bool operator==(const Movie &movie1, const Movie &movie2) {
+    return !(movie1 < movie2 || movie2 < movie1);
+}
+
 #endif // MOVIE

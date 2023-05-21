@@ -19,7 +19,7 @@ using namespace std;
 void print(string cmd, StatusType res);
 void print(string cmd, output_t<int> res);
 void query_get_all_movies(string cmd, streaming_database *obj, Genre genre);
-
+/*
 int main()
 {
 	
@@ -111,7 +111,7 @@ int main()
 	delete obj;
 	return 0;
 }
-
+*/
 // Helpers
 static const char *StatusTypeStr[] =
 {

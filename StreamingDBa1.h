@@ -19,19 +19,31 @@
 #include "AVLTree.h"
 #include "Group.h"
 #include "Movie.h"
+#include <memory>
 
 class streaming_database {
 private:
 	//
 	// Here you may add anything you want
 	//
-	int numOfUsers;
-	int numOfGroups;
-	int viewsByGenre[5];
-	AVLTree<User*, int> users;
-	AVLTree<Group*, int> groups;
-	AVLTree<Movie*, int> moviesByID;
-	AVLTree<Movie*, Movie> MoviesByGrade[5];
+	int numOfUsers = 0;
+	int numOfGroups = 0;
+	int viewsByGenre[5] = {0,0,0,0,0};
+	int numOfMoviesByGenre[5]= {0,0,0,0,0};
+	AVLTree<std::shared_ptr<User>, int>* users;
+	AVLTree<std::shared_ptr<Group>, int>* groups;
+	AVLTree<std::shared_ptr<Movie>, int>* moviesByID;
+	AVLTree<std::shared_ptr<Movie>, Movie>* moviesByGrade;
+	AVLTree<std::shared_ptr<Movie>, Movie>* actionByGrade;
+	AVLTree<std::shared_ptr<Movie>, Movie>* dramaByGrade;
+	AVLTree<std::shared_ptr<Movie>, Movie>* comedyByGrade;
+	AVLTree<std::shared_ptr<Movie>, Movie>* fantasyByGrade;
+	Movie favouriteMoviesByGenre[4];
+	void addMovieByGenre(std::shared_ptr<Movie>);
+	void removeMovieByGenre(std::shared_ptr<Movie>);
+	int getAllMoviesHelper(AVLTree<std::shared_ptr<Movie>, Movie>* node, int* const output, int i);
+	void updateMoviePosition(std::shared_ptr<Movie>);
+	Movie getBestMovie(Genre genre);
 
 public:
 	// <DO-NOT-MODIFY> {
