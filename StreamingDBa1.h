@@ -33,17 +33,17 @@ private:
 	AVLTree<std::shared_ptr<User>, int>* users;
 	AVLTree<std::shared_ptr<Group>, int>* groups;
 	AVLTree<std::shared_ptr<Movie>, int>* moviesByID;
-	AVLTree<std::shared_ptr<Movie>, Movie>* moviesByGrade;
-	AVLTree<std::shared_ptr<Movie>, Movie>* actionByGrade;
-	AVLTree<std::shared_ptr<Movie>, Movie>* dramaByGrade;
-	AVLTree<std::shared_ptr<Movie>, Movie>* comedyByGrade;
-	AVLTree<std::shared_ptr<Movie>, Movie>* fantasyByGrade;
-	Movie favouriteMoviesByGenre[4];
+	AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* moviesByGrade;
+	AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* actionByGrade;
+	AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* dramaByGrade;
+	AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* comedyByGrade;
+	AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* fantasyByGrade;
+	std::shared_ptr<Movie> favouriteMoviesByGenre[4];
 	void addMovieByGenre(std::shared_ptr<Movie>);
 	void removeMovieByGenre(std::shared_ptr<Movie>);
-	int getAllMoviesHelper(AVLTree<std::shared_ptr<Movie>, Movie>* node, int* const output, int i);
-	void updateMoviePosition(std::shared_ptr<Movie>);
-	Movie getBestMovie(Genre genre);
+	int getAllMoviesHelper(AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* node, int* const output, int i);
+	void updateMoviePosition(std::shared_ptr<Movie>, int);
+	std::shared_ptr<Movie> getBestMovie(Genre genre);
 
 public:
 	// <DO-NOT-MODIFY> {

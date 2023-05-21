@@ -35,6 +35,7 @@ public:
 	Group(int id) : groupID(id)
 	{
 		users = new Node<std::shared_ptr<User>>(std::shared_ptr<User>(new User(-1, false)));
+		users->data->setGroup(this);
 		lastUser = users;
 	}
 	~Group()
