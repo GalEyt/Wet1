@@ -4,12 +4,12 @@
 #include <memory>
 class Movie
 {
-    int movieID;
-    Genre genre;
+    int movieID = 0;
+    Genre genre = (Genre)0;
     int views = 0;
     int sumOfReviews = 0;
     int numOfReviews = 0;
-    bool vip;
+    bool vip = false;
 
 public:
     explicit Movie() : movieID(-1), genre((Genre)0), views(0), vip(false) {}
@@ -39,8 +39,6 @@ public:
 };
 inline bool operator<(const Movie &movie1, const Movie &movie2)
 {
-    double grade1 = movie1.getAverageGrade();
-    double grade2 =  movie2.getAverageGrade();
     if (movie1.getAverageGrade() < movie2.getAverageGrade())
     {
         return true;

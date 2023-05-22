@@ -80,7 +80,8 @@ void unitest2_movies(){
     assert(sdb.rate_movie(3, 101, 10)== StatusType::FAILURE);
     assert(sdb.remove_movie(100)== StatusType::SUCCESS);
     assert(sdb.remove_movie(101)== StatusType::SUCCESS);
-
+    delete[] arr;
+    delete[] arrAction;
 
     std::cout <<"yo";
 }
@@ -108,15 +109,23 @@ void unitest_recommend_views(){
     assert(sdb.user_watch(3, 100)== StatusType::SUCCESS);
     assert(sdb.add_user_to_group(3, 1)== StatusType::SUCCESS);
     assert(sdb.group_watch(1, 101)== StatusType::SUCCESS);
-    int user1views = sdb.get_num_views(1, Genre::NONE).ans();
-    int user2views = sdb.get_num_views(2, Genre::NONE).ans();
-    int user3views = sdb.get_num_views(3, Genre::NONE).ans();
+    assert(sdb.get_num_views(1, Genre::NONE).ans() == 6);
+    assert(sdb.get_num_views(2, Genre::NONE).ans() == 4);
+    assert(sdb.get_num_views(3, Genre::NONE).ans() == 2);
+    assert(sdb.get_group_recommendation(1).ans() == 100);
+    assert(sdb.rate_movie(2, 101, 50)== StatusType::SUCCESS);
+    assert(sdb.get_group_recommendation(1).ans() == 101);
+    assert(sdb.rate_movie(2, 100, 50)== StatusType::SUCCESS);
+    assert(sdb.remove_user(1)== StatusType::SUCCESS);
+    assert(sdb.get_group_recommendation(1).ans() == 100);
+    assert(sdb.get_num_views(2, Genre::NONE).ans() == 4);
+    assert(sdb.get_num_views(3, Genre::NONE).ans() == 2);
 }
 
-
+/*
 int main()
 {
     unitest_recommend_views();
     std::cout << "success";
     return 0;
-}
+}*/

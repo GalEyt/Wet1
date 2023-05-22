@@ -11,6 +11,11 @@ streaming_database::streaming_database() : users(new AVLTree<std::shared_ptr<Use
 										   fantasyByGrade(new AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>)
 
 {
+	for (int i = 0; i < 4; i++)
+	{
+		favouriteMoviesByGenre[i] = std::shared_ptr<Movie>(new Movie());
+	}
+	
 }
 
 streaming_database::~streaming_database()
@@ -23,6 +28,14 @@ streaming_database::~streaming_database()
 	comedyByGrade->deleteTree(comedyByGrade);
 	fantasyByGrade->deleteTree(fantasyByGrade);
 	moviesByID->deleteTree(moviesByID);
+	delete groups;
+	delete users;
+	delete moviesByGrade;
+	delete actionByGrade;
+	delete dramaByGrade;
+	delete comedyByGrade;
+	delete fantasyByGrade;
+	delete moviesByID;
 }
 
 StatusType streaming_database::add_movie(int movieId, Genre genre, int views, bool vipOnly)
@@ -38,7 +51,7 @@ StatusType streaming_database::add_movie(int movieId, Genre genre, int views, bo
 		addMovieByGenre(movie);
 		favouriteMoviesByGenre[(int)genre] = getBestMovie(genre);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -63,7 +76,7 @@ StatusType streaming_database::remove_movie(int movieId)
 		removeMovieByGenre(movie);
 		favouriteMoviesByGenre[(int)movie->getGenre()] = getBestMovie(movie->getGenre());
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -90,7 +103,7 @@ StatusType streaming_database::add_user(int userId, bool isVip)
 		users = users->insert(user, userId);
 		numOfUsers++;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -117,7 +130,7 @@ StatusType streaming_database::remove_user(int userId)
 		users = users->remove(userId);
 		numOfUsers--;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -144,7 +157,7 @@ StatusType streaming_database::add_group(int groupId)
 		groups = groups->insert(group, groupId);
 		numOfGroups++;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -167,7 +180,7 @@ StatusType streaming_database::remove_group(int groupId)
 		groups = groups->remove(groupId);
 		numOfGroups--;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -198,7 +211,7 @@ StatusType streaming_database::add_user_to_group(int userId, int groupId)
 		}
 		group->addUser(user);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -233,7 +246,7 @@ StatusType streaming_database::user_watch(int userId, int movieId)
 		viewsByGenre[(int)Genre::NONE]++;
 		user->addView(movie->getGenre());
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -271,7 +284,7 @@ StatusType streaming_database::group_watch(int groupId, int movieId)
 		viewsByGenre[(int)Genre::NONE] += group->getNumOfUsers();
 		group->addView(movie->getGenre());
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -334,7 +347,7 @@ output_t<int> streaming_database::get_num_views(int userId, Genre genre)
 		std::shared_ptr<User> user(users->find(userId)->getData());
 		return output_t<int>(user->getViewsByGenre(genre));
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -366,7 +379,7 @@ StatusType streaming_database::rate_movie(int userId, int movieId, int rating)
 		updateMoviePosition(movie, 0, rating);
 		favouriteMoviesByGenre[(int)movie->getGenre()] = getBestMovie(movie->getGenre());
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return StatusType::ALLOCATION_ERROR;
 	}
@@ -402,7 +415,7 @@ output_t<int> streaming_database::get_group_recommendation(int groupId)
 		}
 		return output_t<int>(bestID);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc const&)
 	{
 		return output_t<int>(StatusType::ALLOCATION_ERROR);
 	}
@@ -434,6 +447,8 @@ void streaming_database::addMovieByGenre(std::shared_ptr<Movie> movie)
 	case Genre::FANTASY:
 		fantasyByGrade = fantasyByGrade->insert(movie, movie);
 		break;
+	default:
+		break;
 	}
 	moviesByGrade = moviesByGrade->insert(movie, movie);
 	viewsByGenre[(int)genre] += movie->getViews();
@@ -458,6 +473,8 @@ void streaming_database::removeMovieByGenre(std::shared_ptr<Movie> movie)
 		break;
 	case Genre::FANTASY:
 		fantasyByGrade = fantasyByGrade->remove(movie);
+		break;
+	default:
 		break;
 	}
 	moviesByGrade = moviesByGrade->remove(movie);
@@ -519,6 +536,8 @@ void streaming_database::updateMoviePosition(std::shared_ptr<Movie> movie, int v
 		fantasyByGrade = fantasyByGrade->remove(movie);
 		updateMovieHelper(movie, views, rating);
 		fantasyByGrade = fantasyByGrade->insert(movie, movie);
+		break;
+	default:
 		break;
 	}
 	moviesByGrade = moviesByGrade->insert(movie, movie);

@@ -20,11 +20,11 @@ template <class T, class ID>
 class AVLTree
 {
 private:
-	AVLTree<T, ID>* right;
-	AVLTree<T, ID>* left;
-	AVLTree<T, ID>* parent;
-	int height;
-	int balance;
+	AVLTree<T, ID>* right = nullptr;
+	AVLTree<T, ID>* left= nullptr;
+	AVLTree<T, ID>* parent= nullptr;
+	int height = -1;
+	int balance = 0;
 	T m_data;
 	ID m_id;
 

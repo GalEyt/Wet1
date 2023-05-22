@@ -6,7 +6,7 @@
 #include <memory>
 class Group
 {
-	int groupID;
+	int groupID = 0;
 	bool vip = false;
 	int viewsOfUsersByGenre[5] = {0, 0, 0, 0, 0};
 	int viewsAsGroup[5] = {0, 0, 0, 0, 0};
@@ -49,6 +49,8 @@ public:
 			toDelete->data->leaveGroup();
 			delete toDelete;
 		}
+		users = nullptr;
+		lastUser = nullptr;
 	}
 	bool isVIP() { return vip; }
 	int getViewsByGenre(Genre genre)
