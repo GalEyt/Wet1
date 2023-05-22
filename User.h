@@ -22,6 +22,9 @@ public:
 	{
 		return numOfGroupWatchWhenEntered[index];
 	}
+	void setViewsOfGroupWhenEntered(int index, int views){
+		numOfGroupWatchWhenEntered[index] = views;
+	}
 	Node<std::shared_ptr<User>> *getPrevUserInGroup()
 	{
 		return prevUserInGroup;

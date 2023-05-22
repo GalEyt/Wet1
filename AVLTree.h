@@ -3,7 +3,6 @@
 
 #ifndef AVL_TREE
 #define AVL_TREE
-#include <algorithm>
 #include <iostream>
 using namespace std;
 #define COUNT 10
@@ -40,6 +39,7 @@ private:
 	void rollLR();
 	void rollRR();
 	void rollRL();
+	int max(int num1, int num2);
 	bool isLeaf()
 	{
 		return (!right && !left);
@@ -376,11 +376,16 @@ void AVLTree<T, ID>::swap(AVLTree<T, ID>* other)
 }
 
 template <class T, class ID>
+int AVLTree<T, ID>::max(int num1, int num2){
+	return num1 > num2 ? num1 : num2;
+}
+
+template <class T, class ID>
 void AVLTree<T, ID>::updateHeightBalance()
 {
 	if (left && right)
 	{
-		height = std::max(left->height, right->height) + 1;
+		height = AVLTree::max(left->height, right->height) + 1;
 		balance = left->height - right->height;
 	}
 	else if (left)

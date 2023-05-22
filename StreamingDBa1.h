@@ -42,7 +42,8 @@ private:
 	void addMovieByGenre(std::shared_ptr<Movie>);
 	void removeMovieByGenre(std::shared_ptr<Movie>);
 	int getAllMoviesHelper(AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>>* node, int* const output, int i);
-	void updateMoviePosition(std::shared_ptr<Movie>, int);
+	void updateMovieHelper(std::shared_ptr<Movie>, int views, int rating);
+	void updateMoviePosition(std::shared_ptr<Movie>, int views, int rating);
 	std::shared_ptr<Movie> getBestMovie(Genre genre);
 
 public:

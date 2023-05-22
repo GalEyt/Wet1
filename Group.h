@@ -65,6 +65,11 @@ public:
 		lastUser = lastUser->next;
 		numOfUsers++;
 		addViewsOfUser(user);
+		for (int i = 0; i < 5; i++)
+		{
+			user->setViewsOfGroupWhenEntered(i, groupWatchCounter[i]);
+		}
+		
 		if (user->isVIP())
 		{
 			vip = true;

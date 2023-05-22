@@ -227,15 +227,11 @@ StatusType streaming_database::user_watch(int userId, int movieId)
 		{
 			return StatusType::FAILURE;
 		}
-		updateMoviePosition(movie, 1);
+		updateMoviePosition(movie, 1, -1);
 		favouriteMoviesByGenre[(int)movie->getGenre()] = getBestMovie(movie->getGenre());
 		viewsByGenre[(int)movie->getGenre()]++;
 		viewsByGenre[(int)Genre::NONE]++;
 		user->addView(movie->getGenre());
-		if (user->getGroup())
-		{
-			user->getGroup()->addView(movie->getGenre());
-		}
 	}
 	catch (std::bad_alloc)
 	{
@@ -266,7 +262,10 @@ StatusType streaming_database::group_watch(int groupId, int movieId)
 		{
 			return StatusType::FAILURE;
 		}
-		updateMoviePosition(movie, group->getNumOfUsers());
+		if(group->getNumOfUsers() == 0){
+			return StatusType::FAILURE;
+		}
+		updateMoviePosition(movie, group->getNumOfUsers(), -1);
 		favouriteMoviesByGenre[(int)movie->getGenre()] = getBestMovie(movie->getGenre());
 		viewsByGenre[(int)movie->getGenre()] += group->getNumOfUsers();
 		viewsByGenre[(int)Genre::NONE] += group->getNumOfUsers();
@@ -364,8 +363,7 @@ StatusType streaming_database::rate_movie(int userId, int movieId, int rating)
 		{
 			return StatusType::FAILURE;
 		}
-		movie->addReview(rating);
-		updateMoviePosition(movie, 0); // TODO fix
+		updateMoviePosition(movie, 0, rating);
 		favouriteMoviesByGenre[(int)movie->getGenre()] = getBestMovie(movie->getGenre());
 	}
 	catch (std::bad_alloc)
@@ -471,51 +469,59 @@ void streaming_database::removeMovieByGenre(std::shared_ptr<Movie> movie)
 
 int streaming_database::getAllMoviesHelper(AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>> *node, int *const output, int i)
 {
-	if (node->getLeft())
-	{
-		i = getAllMoviesHelper(node->getLeft(), output, i);
-	}
-	output[i] = node->getData()->getID();
-	i++;
+
 	if (node->getRight())
 	{
 		i = getAllMoviesHelper(node->getRight(), output, i);
 	}
+	output[i] = node->getData()->getID();
+	i++;
+	if (node->getLeft())
+	{
+		i = getAllMoviesHelper(node->getLeft(), output, i);
+	}
 	return i;
 }
 
-void streaming_database::updateMoviePosition(std::shared_ptr<Movie> movie, int views)
+void streaming_database::updateMovieHelper(std::shared_ptr<Movie> movie, int views, int rating)
+{
+	movie->addViews(views);
+	if (rating >= 0)
+	{
+		movie->addReview(rating);
+	}
+}
+
+void streaming_database::updateMoviePosition(std::shared_ptr<Movie> movie, int views, int rating)
 {
 	Genre genre = movie->getGenre();
+	moviesByGrade = moviesByGrade->remove(movie);
 	switch (genre)
 	{
 	case Genre::ACTION:
 	{
 		actionByGrade = actionByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->insert(movie, movie);
+		updateMovieHelper(movie, views, rating);
 		actionByGrade = actionByGrade->insert(movie, movie);
 		break;
 	}
 	case Genre::COMEDY:
 		comedyByGrade = comedyByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->insert(movie, movie);
+		updateMovieHelper(movie, views, rating);
 		comedyByGrade = comedyByGrade->insert(movie, movie);
 		break;
 	case Genre::DRAMA:
 		dramaByGrade = dramaByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->insert(movie, movie);
+		updateMovieHelper(movie, views, rating);
 		dramaByGrade = dramaByGrade->insert(movie, movie);
 		break;
 	case Genre::FANTASY:
 		fantasyByGrade = fantasyByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->remove(movie);
-		moviesByGrade = moviesByGrade->insert(movie, movie);
+		updateMovieHelper(movie, views, rating);
 		fantasyByGrade = fantasyByGrade->insert(movie, movie);
 		break;
 	}
+	moviesByGrade = moviesByGrade->insert(movie, movie);
 }
 
 std::shared_ptr<Movie> getMostRight(AVLTree<std::shared_ptr<Movie>, std::shared_ptr<Movie>> *root)
