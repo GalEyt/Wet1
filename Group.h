@@ -26,7 +26,7 @@ class Group
 	{
 		for (int i = 0; i < 5; i++)
 		{
-			viewsOfUsersByGenre[i] -= user->getViewsByGenre((Genre)i);
+			viewsOfUsersByGenre[i] -= user->getViewsByGenreForRemove((Genre)i);
 			viewsAsGroup[i] -= (groupWatchCounter[i] - user->getViewsOfGroupWhenEntered(i));
 		}
 	}
@@ -48,6 +48,7 @@ public:
 			tmp = tmp->next;
 			toDelete->data->leaveGroup();
 			delete toDelete;
+			toDelete = nullptr;
 		}
 		users = nullptr;
 		lastUser = nullptr;
@@ -62,7 +63,6 @@ public:
 	void addUser(std::shared_ptr<User> user)
 	{
 		user->setPrevUserInGroup(lastUser);
-		user->setGroup(this);
 		lastUser->next = new Node<std::shared_ptr<User>>(user);
 		lastUser = lastUser->next;
 		numOfUsers++;
@@ -77,6 +77,7 @@ public:
 			vip = true;
 			numOfVip++;
 		}
+		user->setGroup(this);
 	}
 
 	void removeUser(std::shared_ptr<User> user)
@@ -111,6 +112,11 @@ public:
 		groupWatchCounter[(int)Genre::NONE]++;
 		viewsAsGroup[(int)genre] += numOfUsers;
 		viewsAsGroup[(int)Genre::NONE] += numOfUsers;
+	}
+
+	void userWatchedAlone(Genre genre){
+		viewsOfUsersByGenre[(int)genre]++;
+		viewsOfUsersByGenre[(int)Genre::NONE]++;
 	}
 
 	int getGroupWatchCounter(Genre genre)

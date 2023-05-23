@@ -24,7 +24,7 @@ public:
         {
             return 0;
         }
-        double result = sumOfReviews / numOfReviews;
+        double result = (double)sumOfReviews / (double)numOfReviews;
         return result;
     }
     void addViews(int numOfViews)

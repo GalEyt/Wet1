@@ -8,6 +8,10 @@ int User::getViewsByGenre(Genre genre)
     }
     return viewsByGenre[(int)genre] + group->getGroupWatchCounter(genre) - numOfGroupWatchWhenEntered[(int)genre];
 }
+int User::getViewsByGenreForRemove(Genre genre)
+{
+    return viewsByGenre[(int)genre];
+}
 void User::leaveGroup()
 {
     for (int i = 0; i < 5; i++)
@@ -17,4 +21,13 @@ void User::leaveGroup()
     }
     group = nullptr;
     prevUserInGroup = nullptr;
+}
+void User::addView(Genre genre)
+{
+    viewsByGenre[(int)genre]++;
+    viewsByGenre[(int)Genre::NONE]++;
+    if (group)
+    {
+        group->userWatchedAlone(genre);
+    }
 }

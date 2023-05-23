@@ -122,10 +122,104 @@ void unitest_recommend_views(){
     assert(sdb.get_num_views(3, Genre::NONE).ans() == 2);
 }
 
-/*
-int main()
+void valg(){
+    streaming_database sdb;
+sdb.add_group(6567);
+sdb.add_user_to_group( 3347, 8466);
+sdb.add_group(7703);
+sdb.add_user( 9744 , false);
+sdb.add_user_to_group (9744, 6567);
+sdb.add_group(6727);
+sdb.rate_movie( 9744, 5173, 2);
+sdb.group_watch( 7703, 6945);
+sdb.group_watch( 6727, 264);
+sdb.remove_user (9744);
+sdb.rate_movie (6756, 4670, 116);
+sdb.add_user (8287, false);
+sdb.add_group(9143);
+}
+
+void recomTest(){
+    streaming_database sdb;
+    assert(sdb.add_group(3906)== StatusType::SUCCESS);
+    assert(sdb.add_user(6174,false)== StatusType::SUCCESS);
+    assert(sdb.add_user(5740, false)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(6174, 3906)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(5740, 3906)== StatusType::SUCCESS);
+    assert(sdb.rate_movie(5740, 23525, 14)== StatusType::FAILURE);
+    assert(sdb.get_num_views(5740,(Genre)2).ans() == 0);
+    assert(sdb.remove_user(5740)== StatusType::SUCCESS);
+    assert(sdb.add_movie(1376, (Genre)3, 8, false)== StatusType::SUCCESS);
+    assert(sdb.add_movie(6549, (Genre)2, 58, false)== StatusType::SUCCESS);
+    assert(sdb.add_user(1211,false)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(1211, 3906)== StatusType::SUCCESS);
+    assert(sdb.user_watch(1211, 1376)== StatusType::SUCCESS);
+    assert(sdb.rate_movie(1211, 6549, 14)== StatusType::SUCCESS);
+    assert(sdb.get_group_recommendation(3906).ans() == 1376);
+}
+
+void recomTest2(){
+    streaming_database sdb;
+    assert(sdb.add_movie(5845, (Genre)1, 87, true)== StatusType::SUCCESS); //check
+    assert(sdb.add_movie(1523, (Genre)3, 84, false)== StatusType::SUCCESS);
+    assert(sdb.add_movie(3526, (Genre)0, 29, true)== StatusType::SUCCESS);
+    assert(sdb.add_movie(4133, (Genre)0, 99, true)== StatusType::SUCCESS);
+    assert(sdb.user_watch(5380, 4133)== StatusType::FAILURE);
+    assert(sdb.add_movie(8182, (Genre)2, 23, false)== StatusType::SUCCESS);
+    assert(sdb.add_movie(4982, (Genre)2, 53, false)== StatusType::SUCCESS);
+    assert(sdb.add_group(2567)== StatusType::SUCCESS);
+    assert(sdb.add_user(1809,false)== StatusType::SUCCESS);
+    assert(sdb.user_watch(1809, 4982)== StatusType::SUCCESS);
+    assert(sdb.remove_movie(3526)== StatusType::SUCCESS);
+    assert(sdb.add_movie(8884, (Genre)0, 36, false)== StatusType::SUCCESS);
+    assert(sdb.add_user(471,false)== StatusType::SUCCESS);
+    assert(sdb.group_watch(2567, 8182)== StatusType::FAILURE);
+    assert(sdb.add_movie(7391, (Genre)0, 42, true)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(1809, 2567)== StatusType::SUCCESS);
+    assert(sdb.add_user(1425,true)== StatusType::SUCCESS);
+    assert(sdb.group_watch(2567, 8884)== StatusType::SUCCESS);    
+    assert(sdb.add_user_to_group(1425, 2567)== StatusType::SUCCESS);
+    assert(sdb.add_user(8274, false)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(8274, 2567)== StatusType::SUCCESS);
+    assert(sdb.rate_movie(471, 4982, 84)== StatusType::SUCCESS);
+    assert(sdb.user_watch(8274, 4982)== StatusType::SUCCESS);
+    assert(sdb.get_group_recommendation(2567).ans() == 4982);
+
+}
+
+void recomTest3(){
+    streaming_database sdb;
+    assert(sdb.add_user(1,false)== StatusType::SUCCESS);
+    assert(sdb.add_user(2, true)== StatusType::SUCCESS);
+    assert(sdb.add_group(1)== StatusType::SUCCESS);
+    assert(sdb.add_movie(100, Genre::ACTION, 0, false)== StatusType::SUCCESS);
+    assert(sdb.user_watch(1, 100)== StatusType::SUCCESS);
+    assert(sdb.user_watch(2, 100)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(1, 1)== StatusType::SUCCESS);
+    assert(sdb.user_watch(1, 100)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(2, 1)== StatusType::SUCCESS);
+    assert(sdb.group_watch(1, 100)== StatusType::SUCCESS);
+    assert(sdb.remove_user(1)== StatusType::SUCCESS);
+    assert(sdb.group_watch(1, 100)== StatusType::SUCCESS);
+
+    assert(sdb.remove_group(1)== StatusType::SUCCESS);
+    //assert(sdb.user_watch(1, 100)== StatusType::SUCCESS);
+    assert(sdb.add_group(2)== StatusType::SUCCESS);
+    assert(sdb.add_user_to_group(2, 2)== StatusType::SUCCESS);
+   // assert(sdb.add_user_to_group(1, 2)== StatusType::SUCCESS);
+
+}
+
+void recomTest4(){
+    streaming_database sdb;
+    assert(sdb.add_user(1,false)== StatusType::SUCCESS);
+    assert(sdb.add_movie(100, Genre::ACTION, 0, false)== StatusType::SUCCESS);
+
+}
+
+/*int main()
 {
-    unitest_recommend_views();
+    recomTest4();
     std::cout << "success";
     return 0;
 }*/

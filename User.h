@@ -22,6 +22,7 @@ public:
 	{
 		return numOfGroupWatchWhenEntered[index];
 	}
+	int getViewsByGenreForRemove(Genre genre);
 	void setViewsOfGroupWhenEntered(int index, int views){
 		numOfGroupWatchWhenEntered[index] = views;
 	}
@@ -38,11 +39,8 @@ public:
 	{
 		group = newGroup;
 	}
-	void addView(Genre genre)
-	{
-		viewsByGenre[(int)genre]++;
-		viewsByGenre[(int)Genre::NONE]++;
-	}
+	void addView(Genre genre);
+	
 	void leaveGroup();
 };
 #endif // USER

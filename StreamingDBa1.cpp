@@ -28,14 +28,6 @@ streaming_database::~streaming_database()
 	comedyByGrade->deleteTree(comedyByGrade);
 	fantasyByGrade->deleteTree(fantasyByGrade);
 	moviesByID->deleteTree(moviesByID);
-	delete groups;
-	delete users;
-	delete moviesByGrade;
-	delete actionByGrade;
-	delete dramaByGrade;
-	delete comedyByGrade;
-	delete fantasyByGrade;
-	delete moviesByID;
 }
 
 StatusType streaming_database::add_movie(int movieId, Genre genre, int views, bool vipOnly)
